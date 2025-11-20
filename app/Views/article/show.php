@@ -29,9 +29,43 @@ if (!empty($images)) {
         $bodyImages[] = $img;
     }
 }
+
+// Xay dung muc luc tu noi dung (#, ##, ### dau dong)
+$contentHtml = '';
+$tocEntries = [];
+$idCounts = [];
+$lines = preg_split("/\\r\\n|\\n|\\r/", (string)($articleContent ?? ''));
+foreach ($lines as $ln) {
+    $trim = trim($ln);
+    if ($trim === '') {
+        continue;
+    }
+    if (preg_match('/^(#{1,3})\\s*(.+)$/', $trim, $m)) {
+        $level = strlen($m[1]); // 1-3
+        $text = trim($m[2]);
+        $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $text));
+        $slug = trim($slug, '-');
+        if ($slug === '') {
+            $slug = 'section';
+        }
+        $idx = $idCounts[$slug] ?? 0;
+        $idCounts[$slug] = $idx + 1;
+        $id = $idx > 0 ? $slug . '-' . $idx : $slug;
+        // map #->h2, ##->h3, ###->h4
+        $tag = min(4, 1 + $level);
+        $tocEntries[] = ['id' => $id, 'text' => $text, 'level' => $tag];
+        $contentHtml .= '<h' . $tag . ' id="' . htmlspecialchars($id) . '">' . htmlspecialchars($text) . '</h' . $tag . '>';
+    } else {
+        $contentHtml .= '<p>' . nl2br(htmlspecialchars($trim)) . '</p>';
+    }
+}
+if ($contentHtml === '') {
+    $contentHtml = nl2br(htmlspecialchars($articleContent ?? ''));
+}
 ?>
 
 <div class="article-shell row">
+    <div id="read-progress"></div>
     <div class="col-lg-9 mx-auto">
         <div class="card article-hero mb-4 overflow-hidden">
             <div class="article-hero-media" style="background-image: linear-gradient(120deg, rgba(15,23,42,.65), rgba(14,165,233,.2)), url('<?= htmlspecialchars($coverUrl) ?>');"></div>
@@ -55,6 +89,18 @@ if (!empty($images)) {
 
         <div class="card article-body mb-4">
             <div class="card-body">
+                <?php if (!empty($tocEntries)): ?>
+                <div class="toc-box mb-4">
+                    <div class="toc-title">Muc luc</div>
+                    <ol class="toc-list">
+                        <?php foreach ($tocEntries as $t): ?>
+                        <li class="toc-item level-<?= (int)$t['level'] ?>">
+                            <a href="#<?= htmlspecialchars($t['id']) ?>"><?= htmlspecialchars($t['text']) ?></a>
+                        </li>
+                        <?php endforeach; ?>
+                    </ol>
+                </div>
+                <?php endif; ?>
                 <div class="article-content">
                     <?php if (!empty($bodyImages)): ?>
                         <?php foreach ($bodyImages as $img): ?>
@@ -72,7 +118,7 @@ if (!empty($images)) {
                         <?php endforeach; ?>
                     <?php endif; ?>
 
-                    <?= nl2br(htmlspecialchars($articleContent ?? '')) ?>
+                    <?= $contentHtml ?>
                 </div>
             </div>
         </div>
@@ -164,4 +210,38 @@ document.getElementById('btn-send').addEventListener('click', async () => {
   }
 });
 <?php endif; ?>
+
+// Scroll progress bar
+(function(){
+  const bar = document.getElementById('read-progress');
+  const articleBody = document.querySelector('.article-body');
+
+  function update(){
+    if(!bar || !articleBody) return;
+    const start = articleBody.offsetTop;
+    const end = start + articleBody.offsetHeight - window.innerHeight;
+    const scroll = window.scrollY || document.documentElement.scrollTop || 0;
+    const pct = end > start ? Math.min(1, Math.max(0, (scroll - start) / (end - start))) : 0;
+    bar.style.transform = `scaleX(${pct})`;
+  }
+
+  window.addEventListener('scroll', update, {passive:true});
+  window.addEventListener('resize', update);
+  update();
+})();
+
+// Smooth scroll for TOC
+(function(){
+  const links = document.querySelectorAll('.toc-box a[href^="#"]');
+  links.forEach(a => {
+    a.addEventListener('click', function(e){
+      e.preventDefault();
+      const id = this.getAttribute('href').replace('#','');
+      const target = document.getElementById(id);
+      if(!target) return;
+      const top = target.getBoundingClientRect().top + window.scrollY - 72;
+      window.scrollTo({top, behavior:'smooth'});
+    });
+  });
+})();
 </script>

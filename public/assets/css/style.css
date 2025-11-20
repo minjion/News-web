@@ -354,6 +354,32 @@ body, .navbar, .card, .form-control, .form-select, .list-group-item, .btn, .pagi
 .article-related img.article-thumb{height:150px; object-fit:cover}
 .comment-form textarea{min-height:120px}
 
+/* Article TOC + progress */
+#read-progress{
+  position: fixed;
+  left:0; top:0;
+  height:4px;
+  width:100%;
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+  transform-origin:left center;
+  transform: scaleX(0);
+  transition: transform .05s linear;
+  z-index: 1040;
+}
+.toc-box{
+  background: var(--bg-soft);
+  border:1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+.toc-title{font-weight:700; margin-bottom:.5rem}
+.toc-list{padding-left:1rem; margin:0; list-style:none}
+.toc-item{margin-bottom:.35rem}
+.toc-item a{text-decoration:none; color: var(--link)}
+.toc-item a:hover{color: var(--link-hover)}
+.toc-item.level-3{padding-left:12px; font-size:.95em}
+.toc-item.level-4{padding-left:24px; font-size:.9em; color: var(--muted)}
+
 @media (max-width: 992px){
   .home-hero .hero-inner{padding:1.5rem}
   .article-hero-body{margin-top:-80px}
