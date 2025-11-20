@@ -91,7 +91,7 @@ if ($contentHtml === '') {
             <div class="card-body">
                 <?php if (!empty($tocEntries)): ?>
                 <div class="toc-box mb-4">
-                    <div class="toc-title">Muc luc</div>
+                    <div class="toc-title">Mục lục</div>
                     <ol class="toc-list">
                         <?php foreach ($tocEntries as $t): ?>
                         <li class="toc-item level-<?= (int)$t['level'] ?>">
