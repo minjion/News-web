@@ -212,4 +212,32 @@ class ArticleQueries
                 ORDER BY a.created_at DESC
                 LIMIT :lim";
     }
+
+    /**
+     * Bai truoc trong cung danh muc
+     */
+    public static function getPrevArticleInCategory(): string
+    {
+        return "SELECT article_id, title, created_at 
+                FROM articles 
+                WHERE status = 'published' 
+                  AND category_id = :cid 
+                  AND created_at < :created_at
+                ORDER BY created_at DESC
+                LIMIT 1";
+    }
+
+    /**
+     * Bai sau trong cung danh muc
+     */
+    public static function getNextArticleInCategory(): string
+    {
+        return "SELECT article_id, title, created_at 
+                FROM articles 
+                WHERE status = 'published' 
+                  AND category_id = :cid 
+                  AND created_at > :created_at
+                ORDER BY created_at ASC
+                LIMIT 1";
+    }
 }

@@ -211,5 +211,33 @@ class ArticleRepository implements ArticleRepositoryInterface
         $stmt->execute();
         return $stmt->fetchAll();
     }
+
+    public function getPrevNextInCategory(int $categoryId, string $createdAt, int $excludeId): array
+    {
+        $prevSql = ArticleQueries::getPrevArticleInCategory();
+        $nextSql = ArticleQueries::getNextArticleInCategory();
+
+        $prevStmt = $this->pdo->prepare($prevSql);
+        $prevStmt->bindValue(':cid', $categoryId, \PDO::PARAM_INT);
+        $prevStmt->bindValue(':created_at', $createdAt);
+        $prevStmt->execute();
+        $prev = $prevStmt->fetch();
+
+        $nextStmt = $this->pdo->prepare($nextSql);
+        $nextStmt->bindValue(':cid', $categoryId, \PDO::PARAM_INT);
+        $nextStmt->bindValue(':created_at', $createdAt);
+        $nextStmt->execute();
+        $next = $nextStmt->fetch();
+
+        // Loai tru neu trung article_id (phong truong hop bang created_at)
+        if ($prev && (int)$prev['article_id'] === $excludeId) {
+            $prev = null;
+        }
+        if ($next && (int)$next['article_id'] === $excludeId) {
+            $next = null;
+        }
+
+        return ['prev' => $prev ?: null, 'next' => $next ?: null];
+    }
 }
 

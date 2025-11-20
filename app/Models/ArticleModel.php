@@ -296,6 +296,14 @@ class ArticleModel extends BaseModel
     {
         return $this->repository->getRelatedArticles($categoryId, $excludeId, $limit);
     }
+
+    /**
+     * Lay bai truoc/sau trong cung danh muc
+     */
+    public function getPrevNextInCategory(int $categoryId, string $createdAt, int $excludeId): array
+    {
+        return $this->repository->getPrevNextInCategory($categoryId, $createdAt, $excludeId);
+    }
 }
 
 

@@ -67,6 +67,15 @@ if ($contentHtml === '') {
 <div class="article-shell row">
     <div id="read-progress"></div>
     <div class="col-lg-9 mx-auto">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= htmlspecialchars($baseUrl) ?>/">Trang chủ</a></li>
+                <?php if (!empty($article['category_id'])): ?>
+                <li class="breadcrumb-item"><a href="<?= htmlspecialchars($baseUrl) ?>/category/<?= (int)$article['category_id'] ?>"><?= htmlspecialchars($article['category_name'] ?? 'Danh mục') ?></a></li>
+                <?php endif; ?>
+                <li class="breadcrumb-item active" aria-current="page"><?= htmlspecialchars($article['title']) ?></li>
+            </ol>
+        </nav>
         <div class="card article-hero mb-4 overflow-hidden">
             <div class="article-hero-media" style="background-image: linear-gradient(120deg, rgba(15,23,42,.65), rgba(14,165,233,.2)), url('<?= htmlspecialchars($coverUrl) ?>');"></div>
             <div class="article-hero-body">
@@ -122,6 +131,34 @@ if ($contentHtml === '') {
                 </div>
             </div>
         </div>
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <div class="btn-group" role="group">
+                <a class="btn btn-outline-light" href="<?= htmlspecialchars($baseUrl) ?>/">Về trang chủ</a>
+                <?php if (!empty($article['category_id'])): ?>
+                <a class="btn btn-outline-light" href="<?= htmlspecialchars($baseUrl) ?>/category/<?= (int)$article['category_id'] ?>">Xem danh mục</a>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php if (!empty($prevNext['prev']) || !empty($prevNext['next'])): ?>
+        <div class="card mb-4">
+            <div class="card-body d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div class="flex-fill text-start">
+                    <?php if (!empty($prevNext['prev'])): ?>
+                    <div class="text-muted small mb-1">Bài trước</div>
+                    <a class="h6 d-block" href="<?= htmlspecialchars($baseUrl) ?>/article/<?= (int)$prevNext['prev']['article_id'] ?>"><?= htmlspecialchars($prevNext['prev']['title'] ?? '') ?></a>
+                    <?php endif; ?>
+                </div>
+                <div class="flex-fill text-end">
+                    <?php if (!empty($prevNext['next'])): ?>
+                    <div class="text-muted small mb-1">Bài tiếp</div>
+                    <a class="h6 d-block" href="<?= htmlspecialchars($baseUrl) ?>/article/<?= (int)$prevNext['next']['article_id'] ?>"><?= htmlspecialchars($prevNext['next']['title'] ?? '') ?></a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <?php if (!empty($related)): ?>
         <div class="card mb-4">

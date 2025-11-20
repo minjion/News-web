@@ -33,6 +33,7 @@ interface ArticleRepositoryInterface extends RepositoryInterface
     public function getFeaturedArticle(?int $categoryId = null): ?array;
     public function getTrendingArticles(int $limit = 5, ?int $categoryId = null): array;
     public function getRelatedArticles(int $categoryId, int $excludeId, int $limit = 4): array;
+    public function getPrevNextInCategory(int $categoryId, string $createdAt, int $excludeId): array;
 }
 
 /**

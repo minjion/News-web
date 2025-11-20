@@ -30,11 +30,18 @@ class ArticleController extends Controller
 
         // Bai lien quan (cung danh muc)
         $related = [];
+        $prevNext = ['prev' => null, 'next' => null];
         if (!empty($details['article']['category_id'])) {
+            $catId = (int)$details['article']['category_id'];
             $related = $articleModel->getRelatedArticles(
-                (int)$details['article']['category_id'],
+                $catId,
                 $id,
                 4
+            );
+            $prevNext = $articleModel->getPrevNextInCategory(
+                $catId,
+                (string)($details['article']['created_at'] ?? ''),
+                $id
             );
         }
         
@@ -45,7 +52,8 @@ class ArticleController extends Controller
             'articleContent' => $details['content'],
             'images' => $details['images'],
             'readingMinutes' => $readingMinutes,
-            'related' => $related
+            'related' => $related,
+            'prevNext' => $prevNext
         ]);
     }
 

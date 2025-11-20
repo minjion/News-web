@@ -380,6 +380,19 @@ body, .navbar, .card, .form-control, .form-select, .list-group-item, .btn, .pagi
 .toc-item.level-3{padding-left:12px; font-size:.95em}
 .toc-item.level-4{padding-left:24px; font-size:.9em; color: var(--muted)}
 
+/* Breadcrumbs (tuong thich Light/Dark) */
+.breadcrumb{
+  --bs-breadcrumb-divider: "/";
+  color: var(--text);
+  margin-bottom: .5rem;
+}
+.breadcrumb a{color: var(--link); font-weight:600; text-decoration:none}
+.breadcrumb a:hover{color: var(--link-hover); text-decoration:underline}
+.breadcrumb .active{color: color-mix(in srgb, var(--text) 75%, var(--muted) 25%)}
+.breadcrumb-item + .breadcrumb-item::before{
+  color: var(--muted);
+}
+
 @media (max-width: 992px){
   .home-hero .hero-inner{padding:1.5rem}
   .article-hero-body{margin-top:-80px}
