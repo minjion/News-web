@@ -748,3 +748,24 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+--
+-- Updates mẫu: làm sạch bài viết 32, 33 với heading + ảnh (chạy sau khi import)
+--
+UPDATE `articles`
+SET `title` = 'Hơn 1,6 triệu hộ mất điện do bão Kalmaegi',
+    `summary` = 'Bão Kalmaegi gây mất điện diện rộng miền Trung - Tây Nguyên, EVNCPC huy động hơn 1.300 nhân viên khắc phục.'
+WHERE `article_id` = 32;
+
+UPDATE `article_contents`
+SET `content` = '# Bão Kalmaegi gây mất điện diện rộng\r\n\r\n![Cột điện bị gãy sau bão Kalmaegi](https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=1400&q=80)\r\n\r\n## Quy mô ảnh hưởng\r\n- 1,6 triệu hộ mất điện tại miền Trung - Tây Nguyên.\r\n- 427 sự cố lưới điện trung áp, 18.700 trạm biến áp ngừng.\r\n\r\n## Ứng phó và khôi phục\r\nEVNCPC huy động hơn 1.300 nhân viên, ưu tiên tái cấp điện cho bệnh viện, khu dân cư.\r\n\r\n![Công nhân điện lực khắc phục sự cố](https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=1400&q=80)\r\n\r\n## Cảnh báo thời tiết\r\nMưa lớn, gió giật cấp 13-15 tiếp tục, người dân được khuyến cáo hạn chế ra đường, kiểm tra an toàn điện.'
+WHERE `article_id` = 32;
+
+UPDATE `articles`
+SET `title` = 'Đường sắt Bắc Nam bị chia cắt, 9 tàu khách phải nằm chờ',
+    `summary` = 'Sạt lở tại cung Phước Lãnh - Vân Canh làm tê liệt tuyến đường sắt Bắc Nam, nhiều đoàn tàu phải dừng chờ.'
+WHERE `article_id` = 33;
+
+UPDATE `article_contents`
+SET `content` = '# Đường sắt Bắc Nam tê liệt do sạt lở\r\n\r\n![Tàu phải dừng chờ vì sạt lở đường ray](https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1400&q=80)\r\n\r\n## Vị trí sự cố\r\nCung Phước Lãnh - Vân Canh (Gia Lai) bị xói lở 100 m, sâu 9 m, nền đường mất toàn bộ.\r\n\r\n## Ảnh hưởng vận tải\r\n- 9 đoàn tàu khách SE1, SE3, SE4, SE5, SE6, SE7, SE8, SE21, SE22 phải dừng, nằm chờ.\r\n- Hành khách được hoàn vé, chuyển tải bằng ôtô qua khu vực hư hỏng.\r\n\r\n![Đường ray hư hỏng sau mưa lũ](https://images.unsplash.com/photo-1504714146340-959ca07b7ba3?auto=format&fit=crop&w=1400&q=80)\r\n\r\n## Công tác khắc phục\r\nNgành đường sắt bố trí máy xúc, đá ba lát để gia cố nền, dự kiến thông tuyến tạm trong 24-36 giờ nếu thời tiết thuận.'
+WHERE `article_id` = 33;

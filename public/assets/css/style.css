@@ -393,6 +393,11 @@ body, .navbar, .card, .form-control, .form-select, .list-group-item, .btn, .pagi
   color: var(--muted);
 }
 
+/* Anh chen trong noi dung (Markdown ![]()) */
+.article-image.inline-image{
+  margin:1.5rem auto;
+}
+
 @media (max-width: 992px){
   .home-hero .hero-inner{padding:1.5rem}
   .article-hero-body{margin-top:-80px}

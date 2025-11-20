@@ -35,9 +35,41 @@ $contentHtml = '';
 $tocEntries = [];
 $idCounts = [];
 $lines = preg_split("/\\r\\n|\\n|\\r/", (string)($articleContent ?? ''));
+
+// Ham resolve duong dan anh (tuong doi -> baseUrl, neu khong ton tai thi placeholder)
+$resolveImg = function(string $path) use ($placeholder, $baseUrl): string {
+    $trim = trim($path);
+    if ($trim === '') {
+        return $placeholder;
+    }
+    // Neu la URL tuyet doi thi giu nguyen
+    if (preg_match('/^https?:\\/\\//i', $trim)) {
+        return $trim;
+    }
+    // Loai bo dau slash
+    $rel = ltrim($trim, '/');
+    $fs = __DIR__ . '/../../../public/' . $rel;
+    if (is_file($fs)) {
+        return $baseUrl . '/' . $rel;
+    }
+    return $placeholder;
+};
+
 foreach ($lines as $ln) {
     $trim = trim($ln);
     if ($trim === '') {
+        continue;
+    }
+    // Markdown anh: ![caption](duong_dan)
+    if (preg_match('/^!\\[([^\\]]*)\\]\\(([^)]+)\\)$/', $trim, $mImg)) {
+        $caption = trim($mImg[1]);
+        $src = $resolveImg($mImg[2]);
+        $contentHtml .= '<figure class="article-image inline-image img-large img-center">';
+        $contentHtml .= '<img src="' . htmlspecialchars($src) . '" alt="' . htmlspecialchars($caption) . '">';
+        if ($caption !== '') {
+            $contentHtml .= '<figcaption>' . htmlspecialchars($caption) . '</figcaption>';
+        }
+        $contentHtml .= '</figure>';
         continue;
     }
     if (preg_match('/^(#{1,3})\\s*(.+)$/', $trim, $m)) {
