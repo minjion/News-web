@@ -55,9 +55,87 @@ $resolveImg = function(string $path) use ($placeholder, $baseUrl): string {
     return $placeholder;
 };
 
+// Resolve media (image/video) tu duong dan tuong doi hoac URL
+$resolveMedia = function(string $path) use ($baseUrl): ?string {
+    $trim = trim($path);
+    if ($trim === '') {
+        return null;
+    }
+    if (preg_match('/^https?:\\/\\//i', $trim)) {
+        return $trim;
+    }
+    $rel = ltrim($trim, '/');
+    $fs = __DIR__ . '/../../../public/' . $rel;
+    if (is_file($fs)) {
+        return $baseUrl . '/' . $rel;
+    }
+    return null;
+};
+
+// Extract YouTube ID (11 chars) tu URL
+$extractYoutubeId = function(string $url): ?string {
+    $u = trim($url);
+    if ($u === '') { return null; }
+    if (preg_match('~youtu\\.be/([A-Za-z0-9_-]{11})~', $u, $m)) {
+        return $m[1];
+    }
+    if (preg_match('~youtube\\.com/(?:embed/|watch\\?[^\\s]*v=)([A-Za-z0-9_-]{11})~', $u, $m)) {
+        return $m[1];
+    }
+    parse_str((string)(parse_url($u, PHP_URL_QUERY) ?? ''), $q);
+    if (!empty($q['v']) && preg_match('/^[A-Za-z0-9_-]{11}$/', (string)$q['v'])) {
+        return (string)$q['v'];
+    }
+    return null;
+};
+
+// Extract Vimeo ID (chuoi so)
+$extractVimeoId = function(string $url): ?string {
+    $u = trim($url);
+    if ($u === '') { return null; }
+    if (preg_match('~vimeo\\.com/(?:video/)?([0-9]{6,})~', $u, $m)) {
+        return $m[1];
+    }
+    return null;
+};
+
+// Render video embed (YouTube/Vimeo/video file)
+$renderVideo = function(string $type, string $url) use ($resolveMedia, $extractYoutubeId, $extractVimeoId): string {
+    $type = strtolower(trim($type));
+    $src = null;
+
+    if ($type === 'youtube') {
+        $vid = $extractYoutubeId($url);
+        if ($vid) {
+            $src = 'https://www.youtube.com/embed/' . rawurlencode($vid);
+        }
+    } elseif ($type === 'vimeo') {
+        $vid = $extractVimeoId($url);
+        if ($vid) {
+            $src = 'https://player.vimeo.com/video/' . rawurlencode($vid);
+        }
+    } else { // video file
+        $src = $resolveMedia($url);
+    }
+
+    if (!$src) {
+        return '<div class="alert alert-warning small mb-3">Video URL khong hop le.</div>';
+    }
+
+    if ($type === 'video') {
+        return '<div class="video-embed ratio-16x9"><video controls preload="metadata" playsinline src="' . htmlspecialchars($src) . '"></video></div>';
+    }
+    return '<div class="video-embed ratio-16x9"><iframe src="' . htmlspecialchars($src) . '" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+};
+
 foreach ($lines as $ln) {
     $trim = trim($ln);
     if ($trim === '') {
+        continue;
+    }
+    // Video embed: @[youtube](url), @[vimeo](url), @[video](mp4 hoac duong dan file)
+    if (preg_match('/^@\\[(youtube|vimeo|video)\\]\\(([^)]+)\\)$/i', $trim, $mVid)) {
+        $contentHtml .= $renderVideo($mVid[1], $mVid[2]);
         continue;
     }
     // Markdown anh: ![caption](duong_dan)

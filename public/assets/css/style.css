@@ -122,6 +122,12 @@ footer.site-footer{margin-top:auto; border-top:1px solid var(--border); backgrou
 .article-content{font-size:1.05rem; line-height:1.8}
 .article-content p{margin-bottom:1rem}
 
+/* Video embeds */
+.video-embed{margin:1.25rem 0; position:relative; background:#000; border-radius:8px; box-shadow: var(--shadow-2); overflow:hidden}
+.video-embed.ratio-16x9{aspect-ratio:16 / 9;}
+.video-embed iframe, .video-embed video{width:100%; height:100%; border:0; display:block; background:#000}
+.video-embed video{object-fit:cover}
+
 /* Article images */
 .article-image{margin:1rem 0}
 .article-image img{display:block; width:100%; height:auto; border-radius:8px}

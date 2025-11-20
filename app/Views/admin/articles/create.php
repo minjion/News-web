@@ -10,7 +10,20 @@
     </div>
     <div class="mb-3">
         <label class="form-label">Nội dung</label>
+        <div class="d-flex align-items-center gap-2 flex-wrap mb-2">
+            <span class="text-muted small">Markdown nhanh:</span>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Markdown helpers">
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="# Tieu de lon\n\n">H1</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="## Muc nho\n\n">H2</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="- Item 1\n- Item 2\n\n">List</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="![caption](duong_dan_anh)\n\n">Anh</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@\[youtube](https://youtu.be/VIDEO_ID)\n\n">YouTube</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@\[vimeo](https://vimeo.com/123456789)\n\n">Vimeo</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@\[video](uploads/video.mp4)\n\n">Video</button>
+            </div>
+        </div>
         <textarea name="content" class="form-control" rows="6"></textarea>
+        <div class="form-text">Ho tro Markdown: # tieu de, ## muc, ![caption](duong_dan_anh), @[youtube](link), @[vimeo](link), @[video](link mp4)</div>
     </div>
     <div class="mb-3">
         <label class="form-label">Danh mục</label>
@@ -74,6 +87,31 @@
       const reader = new FileReader();
       reader.onload = e => { img.src = e.target.result; };
       reader.readAsDataURL(file);
+    });
+  });
+})();
+
+// Markdown helper buttons (insert snippet at cursor)
+(function(){
+  const textarea = document.querySelector('textarea[name="content"]');
+  const buttons = document.querySelectorAll('[data-md-target="content"]');
+  if (!textarea || buttons.length === 0) return;
+
+  function insert(snippet){
+    const start = textarea.selectionStart ?? textarea.value.length;
+    const end   = textarea.selectionEnd ?? textarea.value.length;
+    const before = textarea.value.slice(0, start);
+    const after  = textarea.value.slice(end);
+    textarea.value = before + snippet + after;
+    const pos = start + snippet.length;
+    textarea.setSelectionRange(pos, pos);
+    textarea.focus();
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const snip = (btn.getAttribute('data-snippet') || '').replace(/\\n/g, '\n').replace(/\\t/g, '\t');
+      if (snip) insert(snip);
     });
   });
 })();
