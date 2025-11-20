@@ -18,16 +18,34 @@ class ArticleController extends Controller
             return;
         }
         
-        // Ghi lại lượt xem
+        // Ghi lai luot xem
         $userId = $_SESSION['user_id'] ?? null;
         $articleModel->addView($id, $userId);
+
+        // Tinh thoi gian doc (gia su 220 tu/phut)
+        $plain = trim(strip_tags($details['content'] ?? ''));
+        $words = $plain === '' ? [] : preg_split('/\s+/u', $plain);
+        $wordCount = is_array($words) ? count($words) : 0;
+        $readingMinutes = max(1, (int)ceil($wordCount / 220));
+
+        // Bai lien quan (cung danh muc)
+        $related = [];
+        if (!empty($details['article']['category_id'])) {
+            $related = $articleModel->getRelatedArticles(
+                (int)$details['article']['category_id'],
+                $id,
+                4
+            );
+        }
         
         $comments = (new CommentModel())->listForArticle($id);
         $this->view('article/show', [
             'article' => $details['article'],
             'comments' => $comments,
             'articleContent' => $details['content'],
-            'images' => $details['images']
+            'images' => $details['images'],
+            'readingMinutes' => $readingMinutes,
+            'related' => $related
         ]);
     }
 
@@ -36,15 +54,15 @@ class ArticleController extends Controller
         $page = max(1, (int)($_GET['page'] ?? 1));
         $per = 9;
 
-        // Lấy thông tin danh mục
+        // Lay thong tin danh muc
         $categoryModel = new CategoryModel();
         $category = $categoryModel->find($id);
 
-        // Lấy danh sách bài viết và tổng số lượng
+        // Lay danh sach bai viet va tong so luong
         [$articles, $total] = (new ArticleModel())->getByCategory($id, $page, $per);
         $pages = (int)ceil($total / $per);
 
-        // Hiển thị giao diện
+        // Hien thi giao dien
         $this->view('article/category', [
             'category' => $category,
             'articles' => $articles,

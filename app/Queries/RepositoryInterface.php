@@ -30,6 +30,9 @@ interface ArticleRepositoryInterface extends RepositoryInterface
     public function getUserArticles(int $userId): array;
     public function incrementViews(int $id): bool;
     public function addView(int $articleId, ?int $userId = null): bool;
+    public function getFeaturedArticle(?int $categoryId = null): ?array;
+    public function getTrendingArticles(int $limit = 5, ?int $categoryId = null): array;
+    public function getRelatedArticles(int $categoryId, int $excludeId, int $limit = 4): array;
 }
 
 /**

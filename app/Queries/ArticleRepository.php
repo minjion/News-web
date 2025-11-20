@@ -174,5 +174,42 @@ class ArticleRepository implements ArticleRepositoryInterface
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute([$articleId, $userId]);
     }
+
+    public function getFeaturedArticle(?int $categoryId = null): ?array
+    {
+        $sql = ArticleQueries::getFeaturedArticle();
+        $stmt = $this->pdo->prepare($sql);
+        $type = $categoryId === null ? \PDO::PARAM_NULL : \PDO::PARAM_INT;
+        $stmt->bindValue(':cid1', $categoryId, $type);
+        $stmt->bindValue(':cid2', $categoryId, $type);
+        $stmt->execute();
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function getTrendingArticles(int $limit = 5, ?int $categoryId = null): array
+    {
+        $limit = max(1, $limit);
+        $sql = ArticleQueries::getTrendingArticles();
+        $stmt = $this->pdo->prepare($sql);
+        $type = $categoryId === null ? \PDO::PARAM_NULL : \PDO::PARAM_INT;
+        $stmt->bindValue(':cid1', $categoryId, $type);
+        $stmt->bindValue(':cid2', $categoryId, $type);
+        $stmt->bindValue(':lim', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function getRelatedArticles(int $categoryId, int $excludeId, int $limit = 4): array
+    {
+        $limit = max(1, $limit);
+        $sql = ArticleQueries::getRelatedArticles();
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':cid', $categoryId, \PDO::PARAM_INT);
+        $stmt->bindValue(':exclude', $excludeId, \PDO::PARAM_INT);
+        $stmt->bindValue(':lim', $limit, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
 }
 

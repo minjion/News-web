@@ -155,4 +155,61 @@ class ArticleQueries
     {
         return "DELETE FROM article_media WHERE article_id = ? AND media_id = ? AND media_type='image' AND media_url = ? LIMIT 1";
     }
+
+    /**
+     * B�i n�i b�t (l�y m�i nh�t, c� th� l�c theo danh m�c)
+     */
+    public static function getFeaturedArticle(): string
+    {
+        return "SELECT a.article_id, a.title, a.summary, a.created_at, c.category_name, a.category_id,
+                       (SELECT am.media_url FROM article_media am 
+                        WHERE am.article_id = a.article_id AND am.media_type = 'image' 
+                        ORDER BY am.media_id ASC LIMIT 1) AS thumb
+                FROM articles a
+                LEFT JOIN categories c ON a.category_id = c.category_id
+                WHERE a.status = 'published' AND (:cid1 IS NULL OR a.category_id = :cid2)
+                ORDER BY a.created_at DESC
+                LIMIT 1";
+    }
+
+    /**
+     * Danh s�ch b�i ��c nhi�u (d�a tr�n views 7 ng�y g�n nh�t)
+     */
+    public static function getTrendingArticles(): string
+    {
+        return "SELECT a.article_id, a.title, a.summary, a.created_at, c.category_name, a.category_id,
+                       COALESCE(v.cnt, 0) AS views_7d,
+                       (SELECT am.media_url FROM article_media am 
+                        WHERE am.article_id = a.article_id AND am.media_type = 'image' 
+                        ORDER BY am.media_id ASC LIMIT 1) AS thumb
+                FROM articles a
+                LEFT JOIN categories c ON a.category_id = c.category_id
+                LEFT JOIN (
+                    SELECT article_id, COUNT(*) AS cnt
+                    FROM views
+                    WHERE view_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                    GROUP BY article_id
+                ) v ON v.article_id = a.article_id
+                WHERE a.status = 'published' AND (:cid1 IS NULL OR a.category_id = :cid2)
+                ORDER BY COALESCE(v.cnt, 0) DESC, a.created_at DESC
+                LIMIT :lim";
+    }
+
+    /**
+     * B�i li�n quan (c�ng danh m�c, loai tr� b�i hi�n t�i)
+     */
+    public static function getRelatedArticles(): string
+    {
+        return "SELECT a.article_id, a.title, a.summary, a.created_at, c.category_name, a.category_id,
+                       (SELECT am.media_url FROM article_media am 
+                        WHERE am.article_id = a.article_id AND am.media_type = 'image' 
+                        ORDER BY am.media_id ASC LIMIT 1) AS thumb
+                FROM articles a
+                LEFT JOIN categories c ON a.category_id = c.category_id
+                WHERE a.status = 'published'
+                  AND a.category_id = :cid
+                  AND a.article_id <> :exclude
+                ORDER BY a.created_at DESC
+                LIMIT :lim";
+    }
 }

@@ -272,6 +272,30 @@ class ArticleModel extends BaseModel
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($articleIds);
     }
+
+    /**
+     * L�y b�i n�i b�t (m�i nh�t, c� th� l�c theo danh m�c)
+     */
+    public function getFeaturedArticle(?int $categoryId = null): ?array
+    {
+        return $this->repository->getFeaturedArticle($categoryId);
+    }
+
+    /**
+     * L�y danh s�ch b�i ��c nhi�u
+     */
+    public function getTrendingArticles(int $limit = 5, ?int $categoryId = null): array
+    {
+        return $this->repository->getTrendingArticles($limit, $categoryId);
+    }
+
+    /**
+     * L�y b�i li�n quan (c�ng danh m�c, loai tr� b�i hi�n t�i)
+     */
+    public function getRelatedArticles(int $categoryId, int $excludeId, int $limit = 4): array
+    {
+        return $this->repository->getRelatedArticles($categoryId, $excludeId, $limit);
+    }
 }
 
 
