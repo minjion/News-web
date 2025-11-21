@@ -19,14 +19,14 @@ $thumbSrc = function (array $a) use ($baseUrl, $placeholder): string {
         <div class="card-body d-flex flex-wrap align-items-center gap-3">
             <form method="get" action="<?= htmlspecialchars($baseUrl) ?>/search" class="flex-grow-1" style="min-width:260px">
                 <div class="input-group">
-                    <input type="text" class="form-control" name="q" placeholder="Tim kiem bai viet..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-                    <button class="btn btn-primary" type="submit">Tim</button>
+                    <input type="text" class="form-control" name="q" placeholder="Tìm kiếm bài viết..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
+                    <button class="btn btn-primary" type="submit">Tìm</button>
                 </div>
             </form>
             <form method="get" class="d-flex align-items-center ms-auto" action="">
-                <label class="me-2 text-muted small">Danh muc</label>
+                <label class="me-2 text-muted small">Danh mục</label>
                 <select name="cat" class="form-select" onchange="this.form.submit()">
-                    <option value="0">Tat ca</option>
+                    <option value="0">Tất cả</option>
                     <?php foreach (($categories ?? []) as $c): ?>
                         <option value="<?= (int)$c['category_id'] ?>" <?= (($selectedCat ?? 0) == $c['category_id']) ? 'selected' : '' ?>>
                             <?= htmlspecialchars($c['category_name']) ?>
@@ -44,7 +44,7 @@ $thumbSrc = function (array $a) use ($baseUrl, $placeholder): string {
             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                 <span class="badge badge-cat"><?= htmlspecialchars($featured['category_name'] ?? 'N/A') ?></span>
                 <span class="meta-chip"><?= htmlspecialchars($featured['created_at'] ?? '') ?></span>
-                <span class="meta-chip">Noi bat</span>
+                <span class="meta-chip">Nổi bật</span>
             </div>
             <h1 class="display-6 hero-title mb-3"><?= htmlspecialchars($featured['title'] ?? '') ?></h1>
             <?php if (!empty($featured['summary'])): ?>
