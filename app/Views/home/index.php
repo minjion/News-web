@@ -103,6 +103,56 @@ $thumbSrc = function (array $a) use ($baseUrl, $placeholder): string {
         </div>
 
         <div class="col-lg-4">
+            <div class="card sticky-card mb-4" id="weather-card">
+                <div class="weather-glow"></div>
+                <div class="card-body position-relative">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="mb-0">Thời tiết</h6>
+                        <span class="text-muted small" id="weather-updated"></span>
+                    </div>
+                    <form class="row g-2" id="weather-form">
+                        <div class="col-8">
+                            <select id="weather-city-select" class="form-select form-select-sm">
+                                <option value="Ho Chi Minh" selected>TP HCM (mặc định)</option>
+                                <option value="Ha Noi">Hà Nội</option>
+                                <option value="Da Nang">Đà Nẵng</option>
+                                <option value="Can Tho">Cần Thơ</option>
+                                <option value="Hue">Huế</option>
+                                <option value="Hai Phong">Hải Phòng</option>
+                                <option value="Nha Trang">Nha Trang</option>
+                                <option value="custom">Nhập khác...</option>
+                            </select>
+                            <input id="weather-city-custom" class="form-control form-control-sm mt-2 d-none" placeholder="Nhập tên thành phố khác">
+                        </div>
+                        <div class="col-4 d-grid">
+                            <button class="btn btn-outline-light btn-sm" type="submit">Xem</button>
+                        </div>
+                    </form>
+                    <div class="weather-hero d-flex align-items-center gap-3 mt-3">
+                        <div class="weather-icon" id="weather-icon">&#9729;</div>
+                        <div>
+                            <div class="weather-temp" id="weather-temp">--&deg;C</div>
+                            <div class="weather-desc text-muted" id="weather-desc">Sẵn sàng tra cứu</div>
+                        </div>
+                    </div>
+                    <div class="weather-meta-grid mt-3">
+                        <div class="weather-meta">
+                            <span>Địa điểm</span>
+                            <strong id="weather-location">-</strong>
+                        </div>
+                        <div class="weather-meta">
+                            <span>Gió</span>
+                            <strong id="weather-wind">-</strong>
+                        </div>
+                        <div class="weather-meta">
+                            <span>Mã</span>
+                            <strong id="weather-code">-</strong>
+                        </div>
+                    </div>
+                    <div class="weather-state small text-muted mt-2" id="weather-state">Sẵn sàng tra cứu</div>
+                </div>
+            </div>
+
             <?php if (!empty($trending)): ?>
             <div class="card sticky-card mb-4">
                 <div class="card-body">
@@ -139,3 +189,120 @@ $thumbSrc = function (array $a) use ($baseUrl, $placeholder): string {
         </div>
     </div>
 </div>
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('weather-form');
+  const selectEl = document.getElementById('weather-city-select');
+  const customEl = document.getElementById('weather-city-custom');
+  const state = document.getElementById('weather-state');
+  const updated = document.getElementById('weather-updated');
+  const iconEl = document.getElementById('weather-icon');
+  const tempEl = document.getElementById('weather-temp');
+  const descEl = document.getElementById('weather-desc');
+  const locEl = document.getElementById('weather-location');
+  const windEl = document.getElementById('weather-wind');
+  const codeEl = document.getElementById('weather-code');
+  const card = document.getElementById('weather-card');
+  if (!form || !selectEl || !state || !iconEl || !tempEl || !descEl || !locEl || !windEl || !codeEl) return;
+
+  const fmtTime = new Intl.DateTimeFormat('vi-VN', { hour:'2-digit', minute:'2-digit' });
+  const setState = (text) => { state.textContent = text; };
+  const escapeHtml = (str) => String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const moodMap = [
+    { codes:[0], icon:'\u2600', desc:'Trời quang', mood:'sunny' },
+    { codes:[1,2,3], icon:'\u26c5', desc:'Có mây', mood:'cloudy' },
+    { codes:[45,48], icon:'\uD83C\uDF2B', desc:'Sương mù', mood:'cloudy' },
+    { codes:[51,53,55,56,57], icon:'\uD83C\uDF26', desc:'Mưa nhẹ', mood:'rain' },
+    { codes:[61,63,65,66,67,80,81,82], icon:'\uD83C\uDF27', desc:'Mưa', mood:'rain' },
+    { codes:[71,73,75,77,85,86], icon:'\uD83C\uDF28', desc:'Tuyết', mood:'snow' },
+    { codes:[95,96,99], icon:'\u26c8', desc:'Giông', mood:'storm' },
+  ];
+  const resolveMood = (code) => {
+    const num = Number(code);
+    for (const m of moodMap) {
+      if (m.codes.includes(num)) return m;
+    }
+    return { icon:'\u2601', desc:'Thời tiết', mood:'default' };
+  };
+
+  const getCity = () => {
+    const val = selectEl.value;
+    if (val === 'custom') {
+      return (customEl?.value || '').trim();
+    }
+    return val;
+  };
+
+  async function fetchWeather(city){
+    const q = (city || '').trim();
+    if (!q) {
+      setState('Nhập tên thành phố');
+      return;
+    }
+    setState('Đang tra cứu...');
+    if (card) { card.dataset.mood = 'default'; }
+    try{
+      const geoRes = await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&language=vi&format=json&name=' + encodeURIComponent(q));
+      if (!geoRes.ok) { throw new Error('geo'); }
+      const geo = await geoRes.json();
+      const place = geo && Array.isArray(geo.results) ? geo.results[0] : null;
+      if (!place) {
+        setState('Không tìm thấy địa điểm');
+        return;
+      }
+      const lat = place.latitude;
+      const lon = place.longitude;
+      const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`);
+      if (!weatherRes.ok) { throw new Error('weather'); }
+      const data = await weatherRes.json();
+      const cw = data.current_weather;
+      if (!cw) {
+        setState('Không có dữ liệu thời tiết');
+        return;
+      }
+      const displayName = escapeHtml([place.name, place.country].filter(Boolean).join(', '));
+      const temp = (typeof cw.temperature === 'number') ? cw.temperature.toFixed(1) : cw.temperature;
+      const wind = (typeof cw.windspeed === 'number') ? cw.windspeed.toFixed(1) : cw.windspeed;
+      const windDir = (cw.winddirection ?? '');
+      const mood = resolveMood(cw.weathercode ?? '');
+      iconEl.textContent = mood.icon;
+      descEl.textContent = mood.desc;
+      tempEl.textContent = `${temp ?? '--'}°C`;
+      locEl.textContent = displayName || '-';
+      windEl.textContent = `${escapeHtml(wind)} km/h | ${escapeHtml(windDir)}°`;
+      codeEl.textContent = escapeHtml(cw.weathercode ?? '');
+      setState('Cập nhật thành công');
+      if (updated) { updated.textContent = fmtTime.format(new Date()); }
+      if (card) { card.dataset.mood = mood.mood; }
+    } catch (err){
+      setState('Không thể lấy dữ liệu');
+      if (card) { card.dataset.mood = 'default'; }
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    fetchWeather(getCity());
+  });
+  selectEl.addEventListener('change', () => {
+    const isCustom = selectEl.value === 'custom';
+    if (customEl) {
+      customEl.classList.toggle('d-none', !isCustom);
+      if (isCustom) customEl.focus();
+    }
+    if (!isCustom) {
+      fetchWeather(getCity());
+    }
+  });
+
+  fetchWeather(getCity());
+})();
+</script>
