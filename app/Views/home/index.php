@@ -39,7 +39,7 @@ $thumbSrc = function (array $a) use ($baseUrl, $placeholder): string {
 
     <?php if (!empty($featured)): ?>
     <?php $heroSrc = $thumbSrc($featured); ?>
-    <section class="home-hero card border-0 text-white mb-4" style="background-image: linear-gradient(120deg, rgba(15,23,42,.75), rgba(34,211,238,.18)), url('<?= htmlspecialchars($heroSrc) ?>');">
+    <section class="home-hero card border-0 text-white mb-4" style="background-image: linear-gradient(120deg, rgba(0,0,0,.55), rgba(0,0,0,.25)), url('<?= htmlspecialchars($heroSrc) ?>');">
         <div class="hero-inner">
             <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                 <span class="badge badge-cat"><?= htmlspecialchars($featured['category_name'] ?? 'N/A') ?></span>
