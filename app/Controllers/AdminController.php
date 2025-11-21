@@ -272,6 +272,137 @@ class AdminController extends Controller
         header('Location: ' . $base . '/admin/articles');
     }
 
+    public function dashboard(): void
+    {
+        $this->ensureAdmin();
+        $pdo = (new ArticleModel())->getPdo();
+
+        $fetchInt = function (string $sql) use ($pdo): int {
+            $stmt = $pdo->query($sql);
+            return (int)($stmt->fetchColumn() ?: 0);
+        };
+
+        $totals = [
+            'users'    => $fetchInt("SELECT COUNT(*) FROM users"),
+            'articles' => $fetchInt("SELECT COUNT(*) FROM articles"),
+            'views'    => $fetchInt("SELECT COUNT(*) FROM views"),
+            'views7d'  => $fetchInt("SELECT COUNT(*) FROM views WHERE view_time >= DATE_SUB(NOW(), INTERVAL 7 DAY)"),
+        ];
+
+        $topList = $pdo->query("
+            SELECT a.article_id, a.title, COUNT(v.view_id) AS view_count
+            FROM articles a
+            LEFT JOIN views v ON v.article_id = a.article_id
+            GROUP BY a.article_id, a.title
+            ORDER BY view_count DESC, a.created_at DESC
+            LIMIT 5
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+        $topArticle = $topList[0] ?? null;
+
+        $recent = $pdo->query("
+            SELECT a.article_id, a.title, a.created_at,
+                   (SELECT COUNT(*) FROM views v WHERE v.article_id = a.article_id) AS views
+            FROM articles a
+            ORDER BY a.created_at DESC
+            LIMIT 5
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+
+        $views7 = $pdo->query("
+            SELECT DATE(view_time) as d, COUNT(*) as views
+            FROM views
+            WHERE view_time >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY d
+            ORDER BY d
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+        $articles7 = $pdo->query("
+            SELECT DATE(created_at) as d, COUNT(*) as total
+            FROM articles
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 6 DAY)
+            GROUP BY d
+            ORDER BY d
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+
+        $views30 = $pdo->query("
+            SELECT DATE(view_time) as d, COUNT(*) as views
+            FROM views
+            WHERE view_time >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+            GROUP BY d
+            ORDER BY d
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+        $articles30 = $pdo->query("
+            SELECT DATE(created_at) as d, COUNT(*) as total
+            FROM articles
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 29 DAY)
+            GROUP BY d
+            ORDER BY d
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+
+        $views12m = $pdo->query("
+            SELECT DATE_FORMAT(view_time, '%Y-%m') as m, COUNT(*) as views
+            FROM views
+            WHERE view_time >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 11 MONTH), '%Y-%m-01')
+            GROUP BY m
+            ORDER BY m
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+        $articles12m = $pdo->query("
+            SELECT DATE_FORMAT(created_at, '%Y-%m') as m, COUNT(*) as total
+            FROM articles
+            WHERE created_at >= DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 11 MONTH), '%Y-%m-01')
+            GROUP BY m
+            ORDER BY m
+        ")->fetchAll(\PDO::FETCH_ASSOC);
+
+        $mapify = function(array $rows, string $key, string $val): array {
+            $map = [];
+            foreach ($rows as $row) {
+                $map[$row[$key]] = (int)$row[$val];
+            }
+            return $map;
+        };
+        $viewsMap7 = $mapify($views7, 'd', 'views');
+        $articlesMap7 = $mapify($articles7, 'd', 'total');
+        $viewsMap30 = $mapify($views30, 'd', 'views');
+        $articlesMap30 = $mapify($articles30, 'd', 'total');
+        $viewsMap12m = $mapify($views12m, 'm', 'views');
+        $articlesMap12m = $mapify($articles12m, 'm', 'total');
+
+        $buildDays = function(array $vMap, array $aMap, int $days): array {
+            $labels = $views = $articles = [];
+            for ($i = $days; $i >= 0; $i--) {
+                $date = date('Y-m-d', strtotime("-{$i} days"));
+                $labels[] = date('d/m', strtotime($date));
+                $views[] = $vMap[$date] ?? 0;
+                $articles[] = $aMap[$date] ?? 0;
+            }
+            return ['labels' => $labels, 'views' => $views, 'articles' => $articles];
+        };
+
+        $buildMonths = function(array $vMap, array $aMap, int $months): array {
+            $labels = $views = $articles = [];
+            for ($i = $months; $i >= 0; $i--) {
+                $monthKey = date('Y-m', strtotime("first day of -{$i} month"));
+                $labels[] = date('m/Y', strtotime($monthKey . '-01'));
+                $views[] = $vMap[$monthKey] ?? 0;
+                $articles[] = $aMap[$monthKey] ?? 0;
+            }
+            return ['labels' => $labels, 'views' => $views, 'articles' => $articles];
+        };
+
+        $chartData = [
+            'week'  => $buildDays($viewsMap7, $articlesMap7, 6),
+            'month' => $buildDays($viewsMap30, $articlesMap30, 29),
+            'year'  => $buildMonths($viewsMap12m, $articlesMap12m, 11),
+        ];
+
+        $this->view('admin/dashboard', [
+            'totals' => $totals,
+            'topArticle' => $topArticle,
+            'topList' => $topList,
+            'recent' => $recent,
+            'chartData' => $chartData,
+        ]);
+    }
+
     private function handleMultiUploads(int $articleId, bool $clearExisting = false): void
     {
         if (!isset($_FILES['images'])) { return; }
