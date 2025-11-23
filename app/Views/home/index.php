@@ -81,7 +81,7 @@ $thumbSrc = function (array $a) use ($baseUrl, $placeholder): string {
                                 </div>
                                 <h5 class="card-title mb-2"><a href="<?= htmlspecialchars($baseUrl) ?>/article/<?= (int)$a['article_id'] ?>"><?= htmlspecialchars($a['title']) ?></a></h5>
                                 <p class="card-text text-muted flex-grow-1"><?= nl2br(htmlspecialchars($a['summary'] ?? '')) ?></p>
-                                <a class="btn btn-primary mt-3" href="<?= htmlspecialchars($baseUrl) ?>/article/<?= (int)$a['article_id'] ?>">Doc tiep</a>
+                                <a class="btn btn-primary mt-3" href="<?= htmlspecialchars($baseUrl) ?>/article/<?= (int)$a['article_id'] ?>">Đọc tiếp</a>
                             </div>
                         </div>
                     </div>
