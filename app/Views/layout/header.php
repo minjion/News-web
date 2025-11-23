@@ -34,6 +34,11 @@ $active = function(array $prefixes) use ($rel) {
     }
     return '';
 };
+$isAdmin = false;
+if (!empty($_SESSION['user_id'])) {
+    $userModel = new \App\Models\UserModel();
+    $isAdmin = $userModel->isAdmin((int)$_SESSION['user_id']);
+}
 ?>
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container">
@@ -44,12 +49,16 @@ $active = function(array $prefixes) use ($rel) {
         <div class="collapse navbar-collapse" id="topnav">
             <ul class="navbar-nav ms-auto align-items-lg-center">
                 <li class="nav-item ms-lg-2">
-                    <button id="themeToggle" class="btn btn-sm theme-toggle" type="button" aria-label="Chuyển giao diện">🌙</button>
+                    <button id="themeToggle" class="btn btn-sm theme-toggle" type="button" aria-label="Chuyển giao diện">🌓</button>
                 </li>
-                <li class="nav-item"><a class="nav-link nav-pill<?= $active(['/admin/dashboard']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/dashboard">Dashboard</a></li>
+                <?php if ($isAdmin): ?>
+                    <li class="nav-item"><a class="nav-link nav-pill<?= $active(['/admin/dashboard']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/dashboard">Dashboard</a></li>
+                <?php endif; ?>
                 <li class="nav-item"><a class="nav-link<?= $active(['/search']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/search">Tìm kiếm</a></li>
-                <li class="nav-item"><a class="nav-link<?= $active(['/admin/articles']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/articles">Quản lí bài viết</a></li>
-                <li class="nav-item"><a class="nav-link<?= $active(['/admin/categories']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/categories">Quản lí danh mục</a></li>
+                <?php if ($isAdmin): ?>
+                    <li class="nav-item"><a class="nav-link<?= $active(['/admin/articles']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/articles">Quản lý bài viết</a></li>
+                    <li class="nav-item"><a class="nav-link<?= $active(['/admin/categories']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/categories">Quản lý danh mục</a></li>
+                <?php endif; ?>
                 <?php if (!empty($_SESSION['user_id'])): ?>
                     <li class="nav-item text-white ms-lg-3">Xin chào, <?= htmlspecialchars($_SESSION['username'] ?? 'người dùng') ?></li>
                     <li class="nav-item ms-lg-2">
