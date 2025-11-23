@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="vi">
 <head>
     <meta charset="utf-8">
@@ -46,6 +46,7 @@ $active = function(array $prefixes) use ($rel) {
                 <li class="nav-item ms-lg-2">
                     <button id="themeToggle" class="btn btn-sm theme-toggle" type="button" aria-label="Chuyển giao diện">🌙</button>
                 </li>
+                <li class="nav-item"><a class="nav-link nav-pill<?= $active(['/admin/dashboard']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/dashboard">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link<?= $active(['/search']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/search">Tìm kiếm</a></li>
                 <li class="nav-item"><a class="nav-link<?= $active(['/admin/articles']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/articles">Quản lí bài viết</a></li>
                 <li class="nav-item"><a class="nav-link<?= $active(['/admin/categories']) ?>" href="<?= htmlspecialchars($baseUrl) ?>/admin/categories">Quản lí danh mục</a></li>

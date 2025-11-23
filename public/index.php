@@ -59,6 +59,7 @@ $router->get('/admin/articles/(\\d+)/edit', [App\Controllers\AdminController::cl
 $router->post('/admin/articles/(\\d+)/update', [App\Controllers\AdminController::class, 'updateArticle']);
 $router->post('/admin/articles/(\\d+)/delete', [App\Controllers\AdminController::class, 'deleteArticle']);
 $router->post('/admin/articles/(\\d+)/publish', [App\Controllers\AdminController::class, 'publishArticle']);
+$router->get('/admin/dashboard', [App\Controllers\AdminController::class, 'dashboard']);
 
 $router->get('/api/articles', [App\Controllers\ApiController::class, 'articles']);
 $router->get('/api/article/(\\d+)', [App\Controllers\ApiController::class, 'article']);
