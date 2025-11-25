@@ -17,9 +17,9 @@
                 <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="## Muc nho\n\n">H2</button>
                 <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="- Item 1\n- Item 2\n\n">List</button>
                 <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="![caption](duong_dan_anh)\n\n">Anh</button>
-                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@\[youtube](https://youtu.be/VIDEO_ID)\n\n">YouTube</button>
-                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@\[vimeo](https://vimeo.com/123456789)\n\n">Vimeo</button>
-                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@\[video](uploads/video.mp4)\n\n">Video</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@[youtube](https://youtu.be/VIDEO_ID)\n\n">YouTube</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@[vimeo](https://vimeo.com/123456789)\n\n">Vimeo</button>
+                <button class="btn btn-outline-light" type="button" data-md-target="content" data-snippet="@[video](uploads/video.mp4)\n\n">Video</button>
             </div>
         </div>
         <textarea name="content" class="form-control" rows="6"></textarea>
