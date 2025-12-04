@@ -1,4 +1,4 @@
-﻿#Original: https://github.com/bimmerM5/News_web (by Bimmer, dahikuv, minjion)
+﻿# Original: https://github.com/bimmerM5/News_web (by Bimmer, dahikuv, minjion)
 # News Web (PHP MVC)
 
 Cổng thông tin tức thuần PHP (PDO + MySQL) theo mô hình MVC. Ứng dụng gồm trang công khai, đăng ký/đăng nhập, trang quản trị bài viết/danh mục, upload nhiều ảnh với tùy chọn hiển thị, tìm kiếm, bình luận AJAX, đếm like/xem và API JSON. Giao diện Bootstrap 5 + dark/light toggle.
